@@ -14,6 +14,7 @@ import java.time.Instant;
 @Table(name = "notes")
 public class Note {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
