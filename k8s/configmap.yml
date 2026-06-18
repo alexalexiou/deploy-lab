@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: deploy-lab-config
+  namespace: deploy-lab
+data:
+  DB_URL: jdbc:postgresql://postgres-service:5432/deploylab
+  DB_USERNAME: deploylab

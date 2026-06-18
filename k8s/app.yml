@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-lab-app
+  namespace: deploy-lab
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: deploy-lab-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: deploy-lab-app
+    spec:
+      imagePullSecrets:
+        - name: ecr-secret
+      containers:
+        - name: app
+          image: 310454703994.dkr.ecr.eu-west-1.amazonaws.com/deploy-lab:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: deploy-lab-config
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: deploy-lab-secret
+                  key: DB_PASSWORD
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: deploy-lab-service
+  namespace: deploy-lab
+spec:
+  selector:
+    app: deploy-lab-app
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: NodePort
