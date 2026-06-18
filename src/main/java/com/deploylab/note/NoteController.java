@@ -37,7 +37,7 @@ public class NoteController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found"));
     }
 
-    @GetMapping()
+    @GetMapping("/alex")
     public String ds() {
         return "Hello it's me.";
     }
