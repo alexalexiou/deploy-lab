@@ -37,6 +37,11 @@ public class NoteController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Note not found"));
     }
 
+    @GetMapping()
+    public String ds() {
+        return "Hello it's me.";
+    }
+
     @PostMapping
     public ResponseEntity<NoteResponse> create(@Valid @RequestBody NoteRequest request) {
         Note saved = repository.save(new Note(request.title(), request.body()));
