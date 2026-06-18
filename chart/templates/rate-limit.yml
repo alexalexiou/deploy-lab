@@ -1,0 +1,33 @@
+# Traefik Middleware: rate limit per IP
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: rate-limit
+  namespace: deploy-lab
+spec:
+  rateLimit:
+    average: 20      # max 20 requests per period per IP
+    period: 3m       # the period is 3 minute
+    burst: 10        # allow short bursts of up to 10 extra requests
+    sourceCriterion:
+      ipStrategy:
+        depth: 1     # use the real client IP
+---
+# Traefik IngressRoute: routes traffic through the rate-limit middleware
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: deploy-lab-route
+  namespace: deploy-lab
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: PathPrefix(`/`)
+      kind: Rule
+      middlewares:
+        - name: rate-limit
+          namespace: deploy-lab
+      services:
+        - name: deploy-lab-service
+          port: 80
